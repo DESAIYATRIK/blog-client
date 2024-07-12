@@ -1,24 +1,26 @@
+// api/api.js
+
 import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 import { getAccessToken, getType } from '../utils/common-utils';
 
-const API_URL = 'blog-server-gold.vercel.app';
+const API_URL = 'https://blog-server-gold.vercel.app';
 
 const axiosInstance = axios.create({
     baseURL: API_URL,
     timeout: 10000,
     headers: {
-        "content-type": "application/json"
+        "content-type": "application/json",
+        ...(getAccessToken() && { authorization: getAccessToken() }),
     }
 });
 
 axiosInstance.interceptors.request.use(
     function(config) {
-        // Modify request config if needed
-        if (config.TYPE.params) {
+        if (config.TYPE?.params) {
             config.params = config.TYPE.params;
-        } else if (config.TYPE.query) {
-            config.url = config.url + '/' + config.TYPE.query;
+        } else if (config.TYPE?.query) {
+            config.url = `${config.url}/${config.TYPE.query}`;
         }
         return config;
     },
@@ -29,11 +31,9 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
     function(response) {
-        // Process successful responses
         return processResponse(response);
     },
     function(error) {
-        // Process and handle errors
         return Promise.reject(processError(error));
     }
 );
@@ -48,8 +48,6 @@ const processResponse = (response) => {
 
 const processError = async (error) => {
     if (error.response) {
-        // Request made and server responded with a status code 
-        // that falls out of the range of 2xx
         const { status, data } = error.response;
         return {
             isError: true,
@@ -57,14 +55,12 @@ const processError = async (error) => {
             code: status
         };
     } else if (error.request) {
-        // The request was made but no response was received
         return {
             isError: true,
             msg: API_NOTIFICATION_MESSAGES.requestFailure,
             code: ""
         };
     } else {
-        // Something happened in setting up the request that triggered an Error
         return {
             isError: true,
             msg: API_NOTIFICATION_MESSAGES.networkError,
@@ -75,7 +71,6 @@ const processError = async (error) => {
 
 const API = {};
 
-// Configure API methods based on SERVICE_URLS
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, showUploadProgress, showDownloadProgress) =>
         axiosInstance({
