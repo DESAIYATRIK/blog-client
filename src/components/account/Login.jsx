@@ -151,7 +151,7 @@ const Login = ({ isUserAuthenticated }) => {
       return;
     }
     try {
-      let response = await API.userSignup(signup);
+      let response = await API.signupUser(signup);
       if (response.isSuccess) {
         showError('');
         setSignup(signupInitialValues);
