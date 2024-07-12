@@ -160,7 +160,7 @@ const Login = ({ isUserAuthenticated }) => {
         showError(response.data.msg);
       }
     } catch (error) {
-      showError('user already exists');
+      showError('user already exists' + error);
     }
   };
 
