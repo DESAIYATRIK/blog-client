@@ -3,7 +3,6 @@
 import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 import { getAccessToken, getType } from '../utils/common-utils';
-import Post from '../../../server/model/post';
 
 const API_URL = 'blog-server-gold.vercel.app';
 
@@ -75,7 +74,7 @@ const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, showUploadProgress, showDownloadProgress) =>
         axiosInstance({
-            method: 'POST',
+            method: value.method,
             url: value.url,
             data: value.method === 'DELETE' ? '' : body,
             responseType: value.responseType,
